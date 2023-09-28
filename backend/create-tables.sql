@@ -5,8 +5,8 @@ create table if not exists Users (
   LastName varchar(255) not null,
   HashedPassword binary(16) not null,
   HoursCompleted int not null,
-  ProfilePictureID varchar(255)
-  IsTutor bool not null,
+  ProfilePictureID varchar(255),
+  IsTutor boolean not null
 );
 create table if not exists Students (
   ID int primary key references Users(ID) on delete cascade
