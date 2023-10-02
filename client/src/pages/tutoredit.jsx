@@ -1,8 +1,22 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import profileImage from '../profile.jpg';
 import "../App.css";
+import axios from 'axios';
 
 const TutorEditProfile = () => {
+  const [tutor, setTutor] = useState([])
+  useEffect(() => {
+    const fetchAllTutorEditProfile = async ()=>{
+      try{
+        const res = await axios.get("http://localhost:3000/tutoredit")
+        console.log(res)
+      }catch(err){
+        console.log(err)
+      }
+    }
+    fetchAllTutorEditProfile()
+  },[])
+
   // Generate arrays for hours, minutes, and AM/PM options
   const hours = Array.from({ length: 12 }, (_, i) => (i + 1).toString());
   const minutes = Array.from({ length: 60 }, (_, i) =>
