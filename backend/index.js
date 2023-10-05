@@ -141,6 +141,7 @@ app.get('/users/:Email/:HashedPassword', (req, res) => {
 app.get('/students/:id', (req, res) => {
   const q = 'select * from Users natural join Students where ID=?;'
   db.query(q, req.params.id, (err, data) => {
+    if (err) return res.status(500).send(err)
     if (data.length == 0) return res.status(404).send('user not found')
     else if (data.length != 1)
       // if you get this something is wrong with the schema
