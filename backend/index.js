@@ -20,7 +20,7 @@ app.put('/tutors/:id', (req, res) => {
   const q =
     'update Tutors natural join Users set bio=?,Subject=?,AvailableHoursStart=?,AvailableHoursEnd=?,FirstName=?, LastName=?,HashedPassword=?, HoursCompleted=?,ProfilePictureID=? where ID=?;'
   const values = [
-    req.body.bio,
+    req.body.Bio,
     req.body.Subject,
     req.body.AvailableHoursStart,
     req.body.AvailableHoursEnd,
@@ -37,6 +37,30 @@ app.put('/tutors/:id', (req, res) => {
   })
 })
 
+// query parameters: ID
+// body parameters: all student attributes except ID, Email, and IsTutor
+app.put('/students/:id', (req, res) => {
+  const q =
+    'update Students natural join Users set FirstName=?,LastName=?,HashedPassword=?,HoursCompleted=?,ProfilePictureID=? where ID=?;'
+  const values = [
+    req.body.FirstName,
+    req.body.LastName,
+    req.body.HashedPassword,
+    req.body.HoursCompleted,
+    req.body.ProfilePictureID,
+    req.params.id,
+  ]
+  db.query(q, values, (err, data) => {
+    if (err) {
+      console.log(err)
+      return res.status(500).send(err)
+    }
+    return res.status(200).send(data)
+  })
+})
+
+// query parameters: none
+// body parameters: all attributes associated with tutors
 app.post('/tutors', (req, res) => {
   const createUserQuery =
     'insert into Users (Email,FirstName,LastName,HashedPassword,HoursCompleted,ProfilePictureID,IsTutor) values (?);'
@@ -62,7 +86,7 @@ app.post('/tutors', (req, res) => {
     ]
     db.query(createTutorQuery, [createTutorValues], (err, data2) => {
       if (err) return res.json(err)
-      return res.json(data2)
+      return res.status(200).send(data2)
     })
   })
 })
@@ -94,33 +118,49 @@ app.post('/students', (req, res) => {
   })
 })
 
-// parameters: Email
-// returns: user attributes from database
-app.get('/users/:Email', (req, res) => {
-  const q = 'select * from Users where Email=?;'
-  db.query(q, req.params.Email, (err, data) => {
+// parameters: Email and HashedPassword
+// returns: all Users attributes from database
+//          returns 1 user
+app.get('/users/:Email/:HashedPassword', (req, res) => {
+  const q =
+    'select * from Users where Email=? and HashedPassword=cast(? as binary(16));'
+  const values = [req.params.Email, req.params.HashedPassword]
+  db.query(q, values, (err, data) => {
     if (err) return res.status(500).send(err)
-    return res.status(200).send(data)
+    // if no tuples in result
+    if (data.length == 0) return res.status(404).send('user not found')
+    else if (data.length != 1)
+      return res.status(404).send('error, multiple users with same email')
+    else return res.status(200).send(data[0])
   })
 })
 
 // parameters: ID
-// returns: User natural join Student attributes
-app.get('/users/students/:id', (req, res) => {
-  const q = 'select * from Users natural join Students where id=?;'
+// returns: Users natural join Students attributes
+//          returns 1 user
+app.get('/students/:id', (req, res) => {
+  const q = 'select * from Users natural join Students where ID=?;'
   db.query(q, req.params.id, (err, data) => {
-    if (err) return res.status(404).send(err)
-    return res.status(200).send(data)
+    if (data.length == 0) return res.status(404).send('user not found')
+    else if (data.length != 1)
+      // if you get this something is wrong with the schema
+      return res.status(404).send('error, multiple users with same ID')
+    return res.status(200).send(data[0])
   })
 })
 
 // parameters: ID
-// returns: User natural join Tutor attributes
-app.get('/users/tutors/:id', (req, res) => {
-  const q = 'select * from Users natural join Tutors where id=?;'
+// returns: Users natural join Tutors attributes
+//          returns 1 user
+app.get('/tutors/:id', (req, res) => {
+  const q = 'select * from Users natural join Tutors where ID=?;'
   db.query(q, req.params.id, (err, data) => {
-    if (err) return res.status(404).send(err)
-    return res.status(200).send(data)
+    if (err) return res.status(500).send(err)
+    if (data.length == 0) return res.status(404).send('user not found')
+    else if (data.length != 1)
+      // if you get this something is wrong with the schema
+      return res.status(404).send('error, multiple users with same ID')
+    return res.status(200).send(data[0])
   })
 })
 
