@@ -165,6 +165,37 @@ app.get('/tutors/:id', (req, res) => {
   })
 })
 
+// parameters: StudentID
+// returns: StudentID, TutorID, tutor Bio, tutor Subject, tutor available hours
+app.get('/students/favorites_list/:StudentID', (req, res) => {
+  const q =
+    'select StudentID,TutorID,Bio,Subject,AvailableHoursStart,AvailableHoursEnd from FavoritesList join Tutors on TutorID=ID where StudentID=?;'
+  db.query(q, req.params.StudentID, (err, data) => {
+    if (err) return res.status(500).send(err)
+    return res.status(200).send(data)
+  })
+})
+
+// parameters: StudentID, TutorID
+// returns: sql message, status code 200 on success, 500 on failure
+app.post('/students/favorites_list/:StudentID/:TutorID', (req, res) => {
+  const q = 'insert into FavoritesList values (?);'
+  db.query(q, [[req.params.StudentID, req.params.TutorID]], (err, data) => {
+    if (err) return res.status(500).send(err)
+    return res.status(200).send(data)
+  })
+})
+
+// parameters: StudentID, TutorID
+// returns: sql message, status code 200 on success, 500 on failure
+app.delete('/students/favorites_list/:StudentID/:TutorID', (req, res) => {
+  const q = 'delete from FavoritesList where StudentID=? and TutorID=?;'
+  db.query(q, [req.params.StudentID, req.params.TutorID], (err, data) => {
+    if (err) return res.status(500).send(err)
+    return res.status(200).send(data)
+  })
+})
+
 app.listen(8800, () => {
   console.log('connected to backend')
 })
