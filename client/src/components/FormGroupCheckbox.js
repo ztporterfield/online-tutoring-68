@@ -13,14 +13,14 @@ export default function FormGroupCheckbox({
             <fieldset className="grid grid-cols-3 gap-3 rounded-md border p-2 border-gray-300">
                 {
                     options.map((option, index)=>
-                        <div className="flex gap-1 place-items-center">
+                        <div key={index} className="flex gap-1 place-items-center">
                             <input
                                 type='checkbox'
                                 id={`${id}-${index}`}
                                 name={option.name}
                                 value={option.value}
                             />
-                            <label for={`${id}-${index}`} className="text-sm font-medium">{option.lableText}</label>
+                            <label htmlFor={`${id}-${index}`} className="text-sm font-medium">{option.lableText}</label>
                         </div>
 
                         )

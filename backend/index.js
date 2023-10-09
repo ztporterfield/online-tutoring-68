@@ -1,16 +1,17 @@
 import express from 'express'
 import mysql from 'mysql'
 import cors from 'cors'
+import bcrypt from 'bcrypt'
 
 const app = express()
 app.use(express.json())
 app.use(cors())
 
 const db = mysql.createConnection({
-  host: '',
-  user: '',
-  password: '',
-  database: '',
+  host: process.env.DB_HOST,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DATABASE || 'online_tutoring',
 })
 
 // modify tutor, everything but ID, Email, and IsTutor
@@ -61,22 +62,24 @@ app.put('/students/:id', (req, res) => {
 
 // query parameters: none
 // body parameters: all attributes associated with tutors
-app.post('/tutors', (req, res) => {
+// async is needed to allow await for bcrypt to hash.
+app.post('/tutors', async(req, res) => {
   const createUserQuery =
     'insert into Users (Email,FirstName,LastName,HashedPassword,HoursCompleted,ProfilePictureID,IsTutor) values (?);'
   const createTutorQuery =
     'insert into Tutors (ID,Bio,Subject,AvailableHoursStart,AvailableHoursEnd) values (?);'
+  const hashedPassword = await bcrypt.hash(req.body.Password, 10);
   const createUserValues = [
     req.body.Email,
     req.body.FirstName,
     req.body.LastName,
-    req.body.HashedPassword,
+    hashedPassword,
     req.body.HoursCompleted,
     req.body.ProfilePictureID,
     req.body.IsTutor,
   ]
   db.query(createUserQuery, [createUserValues], (err, data) => {
-    if (err) return res.json(err)
+    if (err) return res.status(400).send(err)
     const createTutorValues = [
       data.insertId,
       req.body.Bio,
@@ -85,7 +88,7 @@ app.post('/tutors', (req, res) => {
       req.body.AvailableHoursEnd,
     ]
     db.query(createTutorQuery, [createTutorValues], (err, data2) => {
-      if (err) return res.json(err)
+      if (err) return res.status(400).send(err)
       return res.status(200).send(data2)
     })
   })
@@ -95,15 +98,17 @@ app.post('/tutors', (req, res) => {
 //       IsTutor is 1 or 0; 1 if IsTutor=true, 0 if IsTutor=false
 // returns: on success - the data returned by mysql with status code 201
 //          on error - the error is sent with status code 400
-app.post('/students', (req, res) => {
+// async is needed to allow await for bcrypt to hash.
+app.post('/students', async (req, res) => {
   const createUserQuery =
     'insert into Users (Email,FirstName,LastName,HashedPassword,HoursCompleted,ProfilePictureID,IsTutor) values (?);'
   const createStudentQuery = 'insert into Students (ID) values (?);'
+  const hashedPassword = await bcrypt.hash(req.body.Password, 10);
   const createUserValues = [
     req.body.Email,
     req.body.FirstName,
     req.body.LastName,
-    req.body.HashedPassword,
+    hashedPassword,
     req.body.HoursCompleted,
     req.body.ProfilePictureID,
     req.body.IsTutor,
