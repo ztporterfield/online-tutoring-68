@@ -7,10 +7,10 @@ app.use(express.json())
 app.use(cors())
 
 const db = mysql.createConnection({
-  host:"database-1.cyxevbjw58vv.us-east-1.rds.amazonaws.com",
-  user:"admin",
-  password:"tHY9OsCrICM35KSadcpT",
-  database:"online_tutoring",
+  host:"",
+  user:"",
+  password:"",
+  database:"",
 })
 
 app.get("/", (req,res)=>{
