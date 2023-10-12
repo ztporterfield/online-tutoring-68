@@ -2,10 +2,33 @@ import express from 'express'
 import mysql from 'mysql'
 import cors from 'cors'
 import bcrypt from 'bcrypt'
+import multer from 'multer'
+import path from 'path'
+import dotenv from 'dotenv'
+import fs from 'fs'
+import { fileURLToPath } from 'url'
+import { dirname } from 'path'
+
+dotenv.config({ path: './.env' })
 
 const app = express()
 app.use(express.json())
 app.use(cors())
+
+// to save images to server
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = dirname(__filename)
+const PROFILE_PHOTOS_DIR = './images/'
+const storage = multer.diskStorage({
+  destination: (req, flile, cb) => {
+    cb(null, PROFILE_PHOTOS_DIR)
+  },
+  filename: (req, file, cb) => {
+    // name file UserID.ext
+    cb(null, req.params.id + path.extname(file.originalname))
+  },
+})
+const upload = multer({ storage: storage })
 
 const db = mysql.createConnection({
   host: process.env.DB_HOST,
@@ -60,15 +83,16 @@ app.put('/students/:id', (req, res) => {
   })
 })
 
+// create new tutor
 // query parameters: none
 // body parameters: all attributes associated with tutors
 // async is needed to allow await for bcrypt to hash.
-app.post('/tutors', async(req, res) => {
+app.post('/tutors', async (req, res) => {
   const createUserQuery =
     'insert into Users (Email,FirstName,LastName,HashedPassword,HoursCompleted,ProfilePictureID,IsTutor) values (?);'
   const createTutorQuery =
     'insert into Tutors (ID,Bio,Subject,AvailableHoursStart,AvailableHoursEnd) values (?);'
-  const hashedPassword = await bcrypt.hash(req.body.Password, 10);
+  const hashedPassword = await bcrypt.hash(req.body.Password, 10)
   const createUserValues = [
     req.body.Email,
     req.body.FirstName,
@@ -94,6 +118,7 @@ app.post('/tutors', async(req, res) => {
   })
 })
 
+// create new student
 // body: Email, FirstName, LastName, HashedPassword, HoursCompleted, ProfilePictureID, IsTutor
 //       IsTutor is 1 or 0; 1 if IsTutor=true, 0 if IsTutor=false
 // returns: on success - the data returned by mysql with status code 201
@@ -103,7 +128,7 @@ app.post('/students', async (req, res) => {
   const createUserQuery =
     'insert into Users (Email,FirstName,LastName,HashedPassword,HoursCompleted,ProfilePictureID,IsTutor) values (?);'
   const createStudentQuery = 'insert into Students (ID) values (?);'
-  const hashedPassword = await bcrypt.hash(req.body.Password, 10);
+  const hashedPassword = await bcrypt.hash(req.body.Password, 10)
   const createUserValues = [
     req.body.Email,
     req.body.FirstName,
@@ -123,6 +148,7 @@ app.post('/students', async (req, res) => {
   })
 })
 
+// retrieve user
 // parameters: Email and HashedPassword
 // returns: all Users attributes from database
 //          returns 1 user
@@ -140,6 +166,7 @@ app.get('/users/:Email/:HashedPassword', (req, res) => {
   })
 })
 
+// retrieve student by ID
 // parameters: ID
 // returns: Users natural join Students attributes
 //          returns 1 user
@@ -155,6 +182,7 @@ app.get('/students/:id', (req, res) => {
   })
 })
 
+// retrieve tutor by ID
 // parameters: ID
 // returns: Users natural join Tutors attributes
 //          returns 1 user
@@ -170,6 +198,7 @@ app.get('/tutors/:id', (req, res) => {
   })
 })
 
+// retrieve a student's favorites list
 // parameters: StudentID
 // returns: StudentID, TutorID, tutor Bio, tutor Subject, tutor available hours
 app.get('/students/favorites_list/:StudentID', (req, res) => {
@@ -181,6 +210,7 @@ app.get('/students/favorites_list/:StudentID', (req, res) => {
   })
 })
 
+// insert item into favorites list
 // parameters: StudentID, TutorID
 // returns: sql message, status code 200 on success, 500 on failure
 app.post('/students/favorites_list/:StudentID/:TutorID', (req, res) => {
@@ -191,6 +221,7 @@ app.post('/students/favorites_list/:StudentID/:TutorID', (req, res) => {
   })
 })
 
+// delete entry from favorites list
 // parameters: StudentID, TutorID
 // returns: sql message, status code 200 on success, 500 on failure
 app.delete('/students/favorites_list/:StudentID/:TutorID', (req, res) => {
@@ -198,6 +229,56 @@ app.delete('/students/favorites_list/:StudentID/:TutorID', (req, res) => {
   db.query(q, [req.params.StudentID, req.params.TutorID], (err, data) => {
     if (err) return res.status(500).send(err)
     return res.status(200).send(data)
+  })
+})
+
+// upload/modify user profile photo
+// parameters: user ID
+// returns: sql message, status code 200 on success, 500 on failure
+app.put('/users/profile_picture/:id', upload.single('image'), (req, res) => {
+  const updatePicture = 'update Users set ProfilePictureID=? where ID=?'
+  const getProfilePicture = 'select ProfilePictureID from Users where ID=?'
+  db.query(getProfilePicture, [req.params.id], (err, data) => {
+    if (err) return res.status(500).send(err)
+    const currentPicture = data[0].ProfilePictureID
+    // if there is a photo, delete it
+    if (currentPicture && currentPicture !== req.file.filename) {
+      let e = null
+      fs.unlink('./images/' + currentPicture, (err) => {
+        if (err) e = err
+      })
+      if (e) return res.status(500).send(e)
+    }
+    db.query(
+      updatePicture,
+      [req.file.filename, req.params.id],
+      (err2, data2) => {
+        if (err2) return res.status(500).send(err2)
+        return res.status(200).send(data2)
+      },
+    )
+  })
+})
+
+// delete profile photo
+// parameters: user ID
+// returns: sql message, status code 200 on success, 500 on failure
+app.delete('/users/profile_picture/:id', (req, res) => {
+  const deletePicture = 'update Users set ProfilePictureID=null where ID=?'
+  const getProfilePicture = 'select ProfilePictureID from Users where ID=?'
+  db.query(getProfilePicture, [req.params.id], (err, data) => {
+    if (err) return res.status(500).send(err)
+    const currentPicture = data[0].ProfilePictureID
+    if (!currentPicture) return res.status(404).send('no profile picture')
+    let e = null
+    fs.unlink(PROFILE_PHOTOS_DIR.toString() + currentPicture, (err) => {
+      if (err) e = err
+    })
+    if (e) return res.status(500).send(e)
+    db.query(deletePicture, [req.params.id], (err2, data2) => {
+      if (err) return res.status(500).send(err2)
+      return res.status(200).send(data2)
+    })
   })
 })
 
