@@ -23,7 +23,7 @@ export default function FormSelect({
             >
                 {
                     options.map((option)=>
-                        <option value={option.value}>{option.label}</option>
+                        <option key={`${id}-${option.value}`} value={option.value}>{option.label}</option>
                     )
                 }
             </select>
