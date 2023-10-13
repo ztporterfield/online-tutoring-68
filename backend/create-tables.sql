@@ -40,3 +40,8 @@ create table if not exists Appointments (
   foreign key(StudentID) references Students(ID) on delete cascade,
   foreign key(TutorID) references Tutors(ID) on delete cascade
 );
+create table if not exists Criminals (
+  FirstName varchar(255) not null,
+  LastName varchar(255) not null,
+  Email varchar(255) not null unique
+);
