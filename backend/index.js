@@ -9,6 +9,9 @@ import fs from 'fs'
 import { fileURLToPath } from 'url'
 import { dirname } from 'path'
 
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = dirname(__filename)
+
 dotenv.config({ path: './.env' })
 
 const app = express()
@@ -16,9 +19,7 @@ app.use(express.json())
 app.use(cors())
 
 // to save images to server
-const __filename = fileURLToPath(import.meta.url)
-const __dirname = dirname(__filename)
-const PROFILE_PHOTOS_DIR = './images/'
+const PROFILE_PHOTOS_DIR = __dirname + '/images'
 const storage = multer.diskStorage({
   destination: (req, flile, cb) => {
     cb(null, PROFILE_PHOTOS_DIR)
@@ -280,6 +281,10 @@ app.delete('/users/profile_picture/:id', (req, res) => {
       return res.status(200).send(data2)
     })
   })
+})
+
+app.get('/images/:path', (req, res) => {
+  return res.sendFile(PROFILE_PHOTOS_DIR + '/' + req.params.path)
 })
 
 app.listen(8800, () => {
