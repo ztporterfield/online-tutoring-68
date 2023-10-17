@@ -154,8 +154,10 @@ app.post('/students', async (req, res) => {
 // returns: all Users attributes from database
 //          returns 1 user
 app.get('/users/:Email/:HashedPassword', (req, res) => {
+  console.log(req.params.Email)
+  console.log(req.params.HashedPassword)
   const q =
-    'select * from Users where Email=? and HashedPassword=cast(? as binary(16));'
+    'select ID,Email,FirstName,LastName,HoursCompleted,ProfilePictureID,IsTutor from Users where Email=? and HashedPassword=cast(? as binary(16));'
   const values = [req.params.Email, req.params.HashedPassword]
   db.query(q, values, (err, data) => {
     if (err) return res.status(500).send(err)
@@ -172,7 +174,7 @@ app.get('/users/:Email/:HashedPassword', (req, res) => {
 // returns: Users natural join Students attributes
 //          returns 1 user
 app.get('/students/:id', (req, res) => {
-  const q = 'select * from Users natural join Students where ID=?;'
+  const q = 'select ID,FirstName,LastName,HoursCompleted,ProfilePictureID,IsTutor from Users natural join Students where ID=?;'
   db.query(q, req.params.id, (err, data) => {
     if (err) return res.status(500).send(err)
     if (data.length == 0) return res.status(404).send('user not found')
@@ -188,7 +190,7 @@ app.get('/students/:id', (req, res) => {
 // returns: Users natural join Tutors attributes
 //          returns 1 user
 app.get('/tutors/:id', (req, res) => {
-  const q = 'select * from Users natural join Tutors where ID=?;'
+  const q = 'select ID,Email,FirstName,LastName,HoursCompleted,ProfilePictureID,IsTutor,Bio,Subject,AvailableHoursStart,AvailableHoursEnd from Users natural join Tutors where ID=?;'
   db.query(q, req.params.id, (err, data) => {
     if (err) return res.status(500).send(err)
     if (data.length == 0) return res.status(404).send('user not found')
