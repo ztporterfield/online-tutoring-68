@@ -17,6 +17,7 @@ dotenv.config({ path: './.env' })
 const app = express()
 app.use(express.json())
 app.use(cors())
+app.use(express.static('images'))
 
 // to save images to server
 const PROFILE_PHOTOS_DIR = __dirname + '/images'
@@ -285,9 +286,9 @@ app.delete('/users/profile_picture/:id', (req, res) => {
   })
 })
 
-app.get('/images/:path', (req, res) => {
-  return res.sendFile(PROFILE_PHOTOS_DIR + '/' + req.params.path)
-})
+// app.get('/images/:path', (req, res) => {
+//   return res.sendFile(PROFILE_PHOTOS_DIR + '/' + req.params.path)
+// })
 
 // --------------------------------------------------------------------------------------------------------------------//
 //tutor endpoint start
