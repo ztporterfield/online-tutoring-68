@@ -3,7 +3,7 @@ create table if not exists Users (
   Email varchar(255) not null unique,
   FirstName varchar(255) not null,
   LastName varchar(255) not null,
-  HashedPassword binary(16) not null,
+  HashedPassword binary(64) not null,
   HoursCompleted int not null,
   ProfilePictureID varchar(255),
   IsTutor boolean not null
