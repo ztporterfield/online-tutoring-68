@@ -299,21 +299,6 @@ app.get("/tutors", (req, res) =>{
     })
 })
 
-app.post("/tutors", (req, res)=>{
-    const q = "INSERT INTO tutors (`Bio`, `Subject`, `AvailableHoursStart`, `AvailableHoursEnd`) VALUES(?)";
-    const values = [
-        req.body.Bio,
-        req.body.Subject,
-        req.body.AvailableHoursStart,
-        req.body.AvailableHoursEnd
-    ];
-
-    db.query(q, [values], (err, data)=>{
-        if(err) return res.json(err);
-        return res.json("tutors has been created succeffully.");
-    });
-});
-
 //end point for delete operation
 app.delete("/tutors/:ID", (req, res)=>{
     const tutorsID = req.params.ID;
@@ -322,29 +307,6 @@ app.delete("/tutors/:ID", (req, res)=>{
     db.query(q, [tutorsID], (err, data)=>{
         if(err) return res.json(err);
         return res.json("tutors profile has been deleted succeffully.");
-
-    })
-})
-
-
-//end point for update operation
-app.put("/tutors/:ID", (req, res)=>{
-    const tutorsID = req.params.ID;
-    const q = "UPDATE tutors SET `Bio` = ?, `Subject`= ?, `AvailableHoursStart` = ?, `AvailableHoursEnd` = ? WHERE ID = ?";
-
-    const values = [
-        req.body.Bio,
-        req.body.Subject,
-        req.body.AvailableHoursStart,
-        req.body.AvailableHoursEnd
-    ]
-
-
-
-
-    db.query(q, [... values, tutorsID], (err, data)=>{
-        if(err) return res.json(err);
-        return res.json("tutors profile has been updated succeffully.");
 
     })
 })
