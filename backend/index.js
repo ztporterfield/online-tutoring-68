@@ -289,6 +289,70 @@ app.get('/images/:path', (req, res) => {
   return res.sendFile(PROFILE_PHOTOS_DIR + '/' + req.params.path)
 })
 
+// --------------------------------------------------------------------------------------------------------------------//
+//tutor endpoint start
+app.get("/tutors", (req, res) =>{
+    const q = "SELECT * FROM tutors"
+    db.query(q, (err, data) =>{
+        if(err) return res.json(err)
+        return res.json(data)
+    })
+})
+
+app.post("/tutors", (req, res)=>{
+    const q = "INSERT INTO tutors (`Bio`, `Subject`, `AvailableHoursStart`, `AvailableHoursEnd`) VALUES(?)";
+    const values = [
+        req.body.Bio,
+        req.body.Subject,
+        req.body.AvailableHoursStart,
+        req.body.AvailableHoursEnd
+    ];
+
+    db.query(q, [values], (err, data)=>{
+        if(err) return res.json(err);
+        return res.json("tutors has been created succeffully.");
+    });
+});
+
+//end point for delete operation
+app.delete("/tutors/:ID", (req, res)=>{
+    const tutorsID = req.params.ID;
+    const q = "DELETE FROM tutors WHERE ID = ?"
+
+    db.query(q, [tutorsID], (err, data)=>{
+        if(err) return res.json(err);
+        return res.json("tutors profile has been deleted succeffully.");
+
+    })
+})
+
+
+//end point for update operation
+app.put("/tutors/:ID", (req, res)=>{
+    const tutorsID = req.params.ID;
+    const q = "UPDATE tutors SET `Bio` = ?, `Subject`= ?, `AvailableHoursStart` = ?, `AvailableHoursEnd` = ? WHERE ID = ?";
+
+    const values = [
+        req.body.Bio,
+        req.body.Subject,
+        req.body.AvailableHoursStart,
+        req.body.AvailableHoursEnd
+    ]
+
+
+
+
+    db.query(q, [... values, tutorsID], (err, data)=>{
+        if(err) return res.json(err);
+        return res.json("tutors profile has been updated succeffully.");
+
+    })
+})
+
+//tutor endpoint end
+// ................................. ///
+
+
 app.listen(8800, () => {
   console.log('connected to backend')
 })
