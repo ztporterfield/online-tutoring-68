@@ -115,3 +115,14 @@ insert into FavoritesList values ((select ID from Students order by rand() limit
 insert into FavoritesList values ((select ID from Students order by rand() limit 1),(select ID from Tutors order by rand() limit 1));
 insert into FavoritesList values ((select ID from Students order by rand() limit 1),(select ID from Tutors order by rand() limit 1));
 insert into FavoritesList values ((select ID from Students order by rand() limit 1),(select ID from Tutors order by rand() limit 1));
+
+insert into Criminals values ("Zoie","Curry","dinirif731@dixiser.com");
+insert into Criminals values ("Amanda","Rush","regis40124@czilou.com");
+insert into Criminals values ("Evelynn","Berry","jogaxe9101@elixirsd.com");
+insert into Criminals values ("Giana","Morris","milerac367@dixiser.com");
+insert into Criminals values ("Zoie","Curry","tefabar936@czilou.com");
+insert into Criminals values ("Isabelle","Boyle","soyotif662@czilou.com");
+insert into Criminals values ("Wren","Monroe","wisoy30746@cindalle.com");
+insert into Criminals values ("Rosalyn","Gonzales","pevoya2485@dixiser.com");
+insert into Criminals values ("Bonnie","Melendez","deroto1371@czilou.com");
+insert into Criminals values ("Eleanor","Orr","kicek63843@elixirsd.com");
