@@ -14,7 +14,7 @@ const TutorEditProfile = () => {
   useEffect(() => {
     const fetchTutorData = async ()=>{
       try{
-        const res = await axios.get("http://localhost:8800/tutors/23")
+        const res = await axios.get("http://localhost:8800/tutors/1")
         console.log(res)
         const tutorData = res.data;
         // Set the fetched data into the state
@@ -52,7 +52,7 @@ const TutorEditProfile = () => {
   
       // Send a PUT request to update the tutor's data in the database
       const tutorId = 23; // Replace with the actual tutor ID
-      const response = await axios.post(`http://localhost:8800/tutors/${tutorId}`, updatedData);
+      const response = await axios.post(`http://localhost:8800/tutors/23`, updatedData);
       
       // Handle the response, e.g., show a success message
       console.log("Data updated successfully:", response.data);
@@ -70,31 +70,15 @@ const TutorEditProfile = () => {
     // Set the selected file when the input value changes
     setSelectedFile(event.target.files[0]);
   };
-
-  const handleUploadFile = async () => {
-    try {
-      if (selectedFile) {
+  const [file, setFile] = useState();
+  const handleUploadFile = () => {
+    
         const formData = new FormData();
-        formData.append('profileImage', selectedFile);
-
-        // Send a POST request to upload the selected file to the server
-        const response = await axios.post("http://localhost:8800/upload-profile-image", formData, {
-          headers: {
-            'Content-Type': 'multipart/form-data',
-          },
-        });
-
-        // Handle the response, e.g., show a success message
-        console.log("File uploaded successfully:", response.data);
-
-        // You can update the profile image in your state or UI as needed
-      } else {
-        console.log("No file selected.");
-      }
-    } catch (error) {
-      // Handle any errors, e.g., show an error message
-      console.error("Error uploading file:", error);
-    }
+        formData.append('image', file);
+        axios.post('http://localhost:8800/upload')
+        .then(res => console.log(res))
+        .catch(err => console.log(err));
+        
   };
   // Generate arrays for hours, minutes, and AM/PM options
   const hours = Array.from({ length: 12 }, (_, i) => (i + 1).toString());
