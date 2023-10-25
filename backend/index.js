@@ -39,6 +39,52 @@ const db = mysql.createConnection({
   database: process.env.DATABASE || 'online_tutoring',
 })
 
+// modify tutor, everything but ID, Email, and IsTutor
+// query parameters: ID
+// body parameters: tutor colums except ID, Email, and IsTutor
+app.put('/tutors/:id', (req, res) => {
+  const q =
+    'update Tutors natural join Users set bio=?,Subject=?,AvailableHoursStart=?,AvailableHoursEnd=?,FirstName=?, LastName=?,HashedPassword=?, HoursCompleted=?,ProfilePictureID=? where ID=?;'
+  const values = [
+    req.body.Bio,
+    req.body.Subject,
+    req.body.AvailableHoursStart,
+    req.body.AvailableHoursEnd,
+    req.body.FirstName,
+    req.body.LastName,
+    req.body.HashedPassword,
+    req.body.HoursCompleted,
+    req.body.ProfilePictureID,
+    req.params.id,
+  ]
+  db.query(q, values, (err, data) => {
+    if (err) return res.status(400).send(err)
+    return res.json(data)
+  })
+})
+
+// query parameters: ID
+// body parameters: all student attributes except ID, Email, and IsTutor
+app.put('/students/:id', (req, res) => {
+  const q =
+    'update Students natural join Users set FirstName=?,LastName=?,HashedPassword=?,HoursCompleted=?,ProfilePictureID=? where ID=?;'
+  const values = [
+    req.body.FirstName,
+    req.body.LastName,
+    req.body.HashedPassword,
+    req.body.HoursCompleted,
+    req.body.ProfilePictureID,
+    req.params.id,
+  ]
+  db.query(q, values, (err, data) => {
+    if (err) {
+      console.log(err)
+      return res.status(500).send(err)
+    }
+    return res.status(200).send(data)
+  })
+})
+
 //to show all the appointments
 app.get("/Appointments", (req,res)=>{
   const q = "SELECT * FROM Appointments"
