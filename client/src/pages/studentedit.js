@@ -37,7 +37,7 @@ const StudentEditProfile = () => {
 
       // Send a PUT request to update the tutor's data in the database
       const response = await axios.put(
-        "http://localhost:8800/users/3",
+        "http://localhost:8800/users/2",
         updatedData
       );
       console.log(updatedData);
@@ -103,5 +103,4 @@ const StudentEditProfile = () => {
       <button onClick={handleSaveChanges}>Save Changes</button>
     </div>
   );
-};
 export default StudentEditProfile;
