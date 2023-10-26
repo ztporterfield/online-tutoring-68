@@ -301,7 +301,7 @@ app.get("/tutors", (req, res) =>{
       tutors.Subject,
       tutors.AvailableHoursStart,
       tutors.AvailableHoursEnd 
-      FROM users NATURAL JOIN tutors;
+      FROM users NATURAL JOIN tutors;   //removed the where isTutors = True
     db.query(q, (err, data) =>{
         if(err) return res.json(err)
         return res.json(data)
