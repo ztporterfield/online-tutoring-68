@@ -79,7 +79,7 @@ app.get('/tutors/:id', (req, res) => {
 })
 
 // query parameters: ID
-// body parameters: all student attributes except ID, Email, and IsTutor
+// body parameters: all student attributes except ID, Email, IsTutor and hashed passowrd
 app.put('/students/:id', (req, res) => {
   const q =
     'update Students natural join Users set FirstName=?,LastName=?,HoursCompleted=?,ProfilePictureID=? where ID=?;'
@@ -435,16 +435,16 @@ app.delete('/users/profile_picture/:id', (req, res) => {
 // -----------------------------------------------------------------------------------------------------------------------//
 //tutor endpoint start
 app.get("/tutors", (req, res) =>{
-    const q = "SELECT 
-      users.FirstName,
-      users.LastName,
-      users.Email,
-      users.HoursCompleted,
-      tutors.Bio,
-      tutors.Subject,
-      tutors.AvailableHoursStart,
-      tutors.AvailableHoursEnd 
-      FROM users NATURAL JOIN tutors;   //removed the where isTutors = True
+    const q = "SELECT  \
+      users.FirstName, \
+      users.LastName,\
+      users.Email, \
+      users.HoursCompleted, \
+      tutors.Bio, \
+      tutors.Subject, \
+      tutors.AvailableHoursStart, \
+      tutors.AvailableHoursEnd  \
+      FROM users NATURAL JOIN tutors;" 
     db.query(q, (err, data) =>{
         if(err) return res.json(err)
         return res.json(data)
