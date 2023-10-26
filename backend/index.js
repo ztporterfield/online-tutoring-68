@@ -210,6 +210,12 @@ app.post('/tutors', async (req, res) => {
     'insert into Users (Email,FirstName,LastName,HashedPassword,HoursCompleted,ProfilePictureID,IsTutor) values (?);'
   const createTutorQuery =
     'insert into Tutors (ID,Bio,Subject,AvailableHoursStart,AvailableHoursEnd) values (?);'
+  const passwordRegex = /^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+])[A-Za-z\d!@#$%^&*()_+]{8,}$/;
+  if(!passwordRegex.test(req.body.Password)){
+    return res.status(403).send({
+      message: "Password must be at least 8 characters,one capital letter,one special character,and at least one digit"
+    })
+  }
   const hashedPassword = await bcrypt.hash(req.body.Password, 10)
   const createUserValues = [
     req.body.Email,
@@ -246,6 +252,12 @@ app.post('/students', async (req, res) => {
   const createUserQuery =
     'insert into Users (Email,FirstName,LastName,HashedPassword,HoursCompleted,ProfilePictureID,IsTutor) values (?);'
   const createStudentQuery = 'insert into Students (ID) values (?);'
+  const passwordRegex = /^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+])[A-Za-z\d!@#$%^&*()_+]{8,}$/;
+  if(!passwordRegex.test(req.body.Password)){
+    return res.status(403).send({
+      message: "Password must be at least 8 characters,one capital letter,one special character,and at least one digit"
+    })
+  }
   const hashedPassword = await bcrypt.hash(req.body.Password, 10)
   const createUserValues = [
     req.body.Email,
