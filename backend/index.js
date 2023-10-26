@@ -432,10 +432,19 @@ app.delete('/users/profile_picture/:id', (req, res) => {
 //   return res.sendFile(PROFILE_PHOTOS_DIR + '/' + req.params.path)
 // })
 
-// --------------------------------------------------------------------------------------------------------------------//
+// -----------------------------------------------------------------------------------------------------------------------//
 //tutor endpoint start
 app.get("/tutors", (req, res) =>{
-    const q = "SELECT * FROM tutors"
+    const q = "SELECT 
+      users.FirstName,
+      users.LastName,
+      users.Email,
+      users.HoursCompleted,
+      tutors.Bio,
+      tutors.Subject,
+      tutors.AvailableHoursStart,
+      tutors.AvailableHoursEnd 
+      FROM users NATURAL JOIN tutors;   //removed the where isTutors = True
     db.query(q, (err, data) =>{
         if(err) return res.json(err)
         return res.json(data)
