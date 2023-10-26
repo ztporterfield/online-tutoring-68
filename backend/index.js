@@ -41,10 +41,10 @@ const db = mysql.createConnection({
 
 // modify tutor, everything but ID, Email, and IsTutor
 // query parameters: ID
-// body parameters: tutor colums except ID, Email, and IsTutor
+// body parameters: tutor colums except ID, Email, IsTutor, and hashed passowrd
 app.put('/tutors/:id', (req, res) => {
   const q =
-    'update Tutors natural join Users set bio=?,Subject=?,AvailableHoursStart=?,AvailableHoursEnd=?,FirstName=?, LastName=?,HashedPassword=?, HoursCompleted=?,ProfilePictureID=? where ID=?;'
+    'update Tutors natural join Users set bio=?,Subject=?,AvailableHoursStart=?,AvailableHoursEnd=?,FirstName=?, LastName=?,HoursCompleted=?,ProfilePictureID=? where ID=?;'
   const values = [
     req.body.Bio,
     req.body.Subject,
@@ -52,7 +52,6 @@ app.put('/tutors/:id', (req, res) => {
     req.body.AvailableHoursEnd,
     req.body.FirstName,
     req.body.LastName,
-    req.body.HashedPassword,
     req.body.HoursCompleted,
     req.body.ProfilePictureID,
     req.params.id,
@@ -63,15 +62,30 @@ app.put('/tutors/:id', (req, res) => {
   })
 })
 
+// retrieve tutor by ID
+// parameters: ID
+// returns: Users natural join Tutors attributes
+//          returns 1 user
+app.get('/tutors/:id', (req, res) => {
+  const q = 'select ID,Email,FirstName,LastName,HoursCompleted,ProfilePictureID,IsTutor,Bio,Subject,AvailableHoursStart,AvailableHoursEnd from Users natural join Tutors where ID=?;'
+  db.query(q, req.params.id, (err, data) => {
+    if (err) return res.status(500).send(err)
+    if (data.length == 0) return res.status(404).send('user not found')
+    else if (data.length != 1)
+      // if you get this something is wrong with the schema
+      return res.status(404).send('error, multiple users with same ID')
+    return res.status(200).send(data[0])
+  })
+})
+
 // query parameters: ID
 // body parameters: all student attributes except ID, Email, and IsTutor
 app.put('/students/:id', (req, res) => {
   const q =
-    'update Students natural join Users set FirstName=?,LastName=?,HashedPassword=?,HoursCompleted=?,ProfilePictureID=? where ID=?;'
+    'update Students natural join Users set FirstName=?,LastName=?,HoursCompleted=?,ProfilePictureID=? where ID=?;'
   const values = [
     req.body.FirstName,
     req.body.LastName,
-    req.body.HashedPassword,
     req.body.HoursCompleted,
     req.body.ProfilePictureID,
     req.params.id,
